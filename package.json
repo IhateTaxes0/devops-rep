@@ -1,0 +1,12 @@
+{
+  "name": "dev",
+  "version": "1.0.0",
+  "description": "This is a simple Todo application with: - **Frontend**: React (port 3000) - **Backend**: Node.js/Express (port 8080) - **Database**: PostgreSQL (port 5432) - When running with docker-compose, the backend listens on port 8080 within the container and is mapped to the host (e.g., 8080).",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
