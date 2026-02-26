@@ -32,10 +32,15 @@ jobs:
       
       - name: Install & Test Backend
         run: |
+          # Create the tables before running tests
+          psql -h localhost -U postgres -d tododb -f database/database.sql
+          
+          # Now install and test
           cd backend
           npm install
           npm test
         env:
+          PGPASSWORD: password123
           DB_HOST: localhost
           DB_PORT: 5432
           DB_NAME: tododb
