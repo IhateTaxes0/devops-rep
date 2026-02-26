@@ -100,10 +100,10 @@ jobs:
               postgres:15-alpine
               
             # Wait 5 seconds for Postgres to fully boot up
-            sleep 5
+            sleep 15
             
             # 2. Create the todos table inside the live database
-            docker exec db psql -U postgres -d tododb -c "CREATE TABLE IF NOT EXISTS todos (id SERIAL PRIMARY KEY, title VARCHAR(255) NOT NULL, completed BOOLEAN DEFAULT false);"
+            docker exec -e PGPASSWORD=${{ secrets.PROD_DB_PASS }} db psql -U postgres -d tododb -c "CREATE TABLE IF NOT EXISTS todos (id SERIAL PRIMARY KEY, title VARCHAR(255) NOT NULL, completed BOOLEAN DEFAULT false);"
             
             # 3. Start the Backend
             docker run -d --name backend \

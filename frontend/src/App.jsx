@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 
-// Use environment variable or fallback to localhost
+// Using backticks for dynamic IP injection
 const API_URL = `http://${window.location.hostname}:8080`;
 
 function App() {
@@ -15,8 +15,9 @@ function App() {
   const fetchTodos = async () => {
     try {
       const res = await fetch(`${API_URL}/api/todos`);
+      if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
-      setTodos(data); 
+      setTodos(data);
     } catch (err) {
       console.error('Fetch error:', err);
     }
@@ -24,7 +25,6 @@ function App() {
 
   const addTodo = async () => {
     if (!newTodo.trim()) return;
-
     try {
       await fetch(`${API_URL}/api/todos`, {
         method: 'POST',
@@ -39,15 +39,12 @@ function App() {
   };
 
   const deleteTodo = async (id) => {
-    if (!window.confirm("Remove this task?")) return;
-    
+    if (!window.confirm("Are you sure?")) return;
     try {
-      await fetch(`${API_URL}/api/todos/${id}`, {
-        method: 'DELETE',
-      });
+      await fetch(`${API_URL}/api/todos/${id}`, { method: 'DELETE' });
       fetchTodos();
     } catch (err) {
-      alert('Failed to delete todo');
+      alert('Failed to delete');
     }
   };
 
@@ -56,114 +53,45 @@ function App() {
       await fetch(`${API_URL}/api/todos/${todo.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          title: todo.title, 
-          completed: !todo.completed 
-        })
+        body: JSON.stringify({ title: todo.title, completed: !todo.completed })
       });
       fetchTodos();
     } catch (err) {
-      alert('Failed to update todo');
+      alert('Failed to update');
     }
   };
 
-  const completedCount = todos.filter(t => t.completed).length;
-  const totalCount = todos.length;
-
   return (
-    <div className="app-container">
-      {/* Header */}
-      <header className="header">
-        <div className="header-content">
-          <div className="logo">STUDIO</div>
-          <p className="tagline">Curated Task Management</p>
-        </div>
-      </header>
+    <div className="App" style={{ padding: '20px', maxWidth: '600px', margin: '0 auto', color: 'white' }}>
+      <h1>🚀 DevOps Todo App</h1>
+      <p>Demo: Watch UI update LIVE after CI/CD! ✨</p>
+      
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <input
+          value={newTodo}
+          onChange={(e) => setNewTodo(e.target.value)}
+          placeholder="Add new todo..."
+          style={{ flexGrow: 1, padding: '10px', borderRadius: '4px', border: 'none' }}
+          onKeyPress={(e) => e.key === 'Enter' && addTodo()}
+        />
+        <button onClick={addTodo} style={{ padding: '10px 20px', cursor: 'pointer' }}>Add</button>
+      </div>
 
-      {/* Main Content */}
-      <main className="main-content">
-        <div className="content-wrapper">
-          {/* Stats */}
-          {totalCount > 0 && (
-            <div className="stats-bar">
-              <div className="stat-item">
-                <span className="stat-label">Progress</span>
-                <span className="stat-value">{completedCount}/{totalCount}</span>
-              </div>
-              <div className="progress-indicator">
-                <div className="progress-fill" style={{ width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` }}></div>
-              </div>
+      <ul style={{ listStyle: 'none', padding: 0 }}>
+        {todos.map(todo => (
+          <li key={todo.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '15px', border: '1px solid #444', marginBottom: '10px', borderRadius: '4px', backgroundColor: '#222' }}>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <span onClick={() => toggleComplete(todo)} style={{ cursor: 'pointer', fontSize: '1.2em' }}>
+                {todo.completed ? '✅' : '⏳'}
+              </span>
+              <span style={{ textDecoration: todo.completed ? 'line-through' : 'none', color: todo.completed ? '#aaa' : 'white', fontSize: '1.1em' }}>
+                {todo.title}
+              </span>
             </div>
-          )}
-
-          {/* Input Section */}
-          <div className="input-section">
-            <div className="input-wrapper">
-              <input
-                value={newTodo}
-                onChange={(e) => setNewTodo(e.target.value)}
-                placeholder="Add new task..."
-                className="task-input"
-                onKeyPress={(e) => e.key === 'Enter' && addTodo()}
-              />
-              <button 
-                onClick={addTodo}
-                className="add-button"
-              >
-                <span className="button-text">Add</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Tasks List */}
-          <div className="tasks-section">
-            {todos.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-icon">⊙</div>
-                <p>No tasks yet</p>
-                <span>Create your first task to get started</span>
-              </div>
-            ) : (
-              <ul className="tasks-list">
-                {todos.map(todo => (
-                  <li key={todo.id} className={`task-item ${todo.completed ? 'completed' : ''}`}>
-                    <div className="task-content">
-                      <button
-                        className="toggle-btn"
-                        onClick={() => toggleComplete(todo)}
-                        title="Toggle task status"
-                      >
-                        {todo.completed ? (
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                          </svg>
-                        ) : (
-                          <div className="empty-checkbox"></div>
-                        )}
-                      </button>
-                      
-                      <span className="task-title">
-                        {todo.title}
-                      </span>
-                    </div>
-
-                    <button 
-                      onClick={() => deleteTodo(todo.id)}
-                      className="delete-btn"
-                      title="Delete task"
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                      </svg>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-      </main>
+            <button onClick={() => deleteTodo(todo.id)} style={{ background: '#dc3545', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
