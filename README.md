@@ -14,12 +14,12 @@ Your task is to build a complete CI/CD pipeline around this application.
 
 The codebase contains **intentional bugs** that you need to identify and fix:
 
-### Backend Issues:
+### Backend Fixed Issues:
 1. **server.js** - Multiple bugs marked with comments (6 bugs total!)
 2. **Tests failing** - 4 out of 7 tests will fail until you fix the code
 3. **Missing functionality** - DELETE and PUT endpoints not implemented
 
-### Docker Issues:
+### Docker Fixed Issues:
 1. **Dockerfiles** - Need to be completed (only skeleton/comments provided)
 2. **docker-compose.yml** - Incomplete, missing configurations
 3. **Missing .dockerignore** - You need to create these files

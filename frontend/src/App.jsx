@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import './App.css';
 
 // Use environment variable or fallback to localhost
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
@@ -15,7 +16,6 @@ function App() {
     try {
       const res = await fetch(`${API_URL}/api/todos`);
       const data = await res.json();
-      // MODIFIED: Removed the sort by 'completed' so items stay in place
       setTodos(data); 
     } catch (err) {
       console.error('Fetch error:', err);
@@ -39,7 +39,7 @@ function App() {
   };
 
   const deleteTodo = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this?")) return;
+    if (!window.confirm("Remove this task?")) return;
     
     try {
       await fetch(`${API_URL}/api/todos/${id}`, {
@@ -67,92 +67,103 @@ function App() {
     }
   };
 
+  const completedCount = todos.filter(t => t.completed).length;
+  const totalCount = todos.length;
+
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1>🚀 DevOps Todo App</h1>
-      <p>Demo: Watch UI update LIVE after CI/CD! ✨</p>
+    <div className="app-container">
+      {/* Header */}
+      <header className="header">
+        <div className="header-content">
+          <div className="logo">STUDIO</div>
+          <p className="tagline">Curated Task Management</p>
+        </div>
+      </header>
 
-      <div style={{ marginBottom: '20px', display: 'flex' }}>
-        <input
-          value={newTodo}
-          onChange={(e) => setNewTodo(e.target.value)}
-          placeholder="Add new todo..."
-          style={{ 
-            padding: '10px', 
-            flexGrow: 1, 
-            marginRight: '10px',
-            border: '1px solid #ccc',
-            borderRadius: '4px'
-          }}
-          onKeyPress={(e) => e.key === 'Enter' && addTodo()}
-        />
-        <button 
-          onClick={addTodo} 
-          style={{ 
-            padding: '10px 20px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}>
-          Add
-        </button>
-      </div>
-
-      <ul style={{ listStyle: 'none', padding: 0 }}>
-        {todos.map(todo => (
-          <li key={todo.id} style={{
-            padding: '15px',
-            border: '1px solid #ddd',
-            marginBottom: '10px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            borderRadius: '4px',
-            backgroundColor: todo.completed ? '#f8f9fa' : 'white',
-            opacity: todo.completed ? 0.8 : 1
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              {/* Clickable Status Icon */}
-              <span 
-                onClick={() => toggleComplete(todo)}
-                style={{ cursor: 'pointer', fontSize: '1.2em' }}
-                title="Click to toggle status"
-              >
-                {todo.completed ? '✅' : '⏳'}
-              </span>
-              
-              <span style={{ 
-                textDecoration: todo.completed ? 'line-through' : 'none',
-                color: todo.completed ? '#6c757d' : 'black'
-              }}>
-                {todo.title}
-              </span>
+      {/* Main Content */}
+      <main className="main-content">
+        <div className="content-wrapper">
+          {/* Stats */}
+          {totalCount > 0 && (
+            <div className="stats-bar">
+              <div className="stat-item">
+                <span className="stat-label">Progress</span>
+                <span className="stat-value">{completedCount}/{totalCount}</span>
+              </div>
+              <div className="progress-indicator">
+                <div className="progress-fill" style={{ width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` }}></div>
+              </div>
             </div>
+          )}
 
-            {/* Delete Button */}
-            <button 
-              onClick={() => deleteTodo(todo.id)}
-              style={{
-                backgroundColor: '#dc3545',
-                color: 'white',
-                border: 'none',
-                padding: '5px 10px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '0.8em'
-              }}
-            >
-              Delete
-            </button>
-          </li>
-        ))}
-      </ul>
+          {/* Input Section */}
+          <div className="input-section">
+            <div className="input-wrapper">
+              <input
+                value={newTodo}
+                onChange={(e) => setNewTodo(e.target.value)}
+                placeholder="Add new task..."
+                className="task-input"
+                onKeyPress={(e) => e.key === 'Enter' && addTodo()}
+              />
+              <button 
+                onClick={addTodo}
+                className="add-button"
+              >
+                <span className="button-text">Add</span>
+              </button>
+            </div>
+          </div>
 
-      {todos.length === 0 && (
-        <p style={{ textAlign: 'center', color: '#888' }}>No tasks yet. Add one above!</p>
-      )}
+          {/* Tasks List */}
+          <div className="tasks-section">
+            {todos.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-icon">⊙</div>
+                <p>No tasks yet</p>
+                <span>Create your first task to get started</span>
+              </div>
+            ) : (
+              <ul className="tasks-list">
+                {todos.map(todo => (
+                  <li key={todo.id} className={`task-item ${todo.completed ? 'completed' : ''}`}>
+                    <div className="task-content">
+                      <button
+                        className="toggle-btn"
+                        onClick={() => toggleComplete(todo)}
+                        title="Toggle task status"
+                      >
+                        {todo.completed ? (
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                        ) : (
+                          <div className="empty-checkbox"></div>
+                        )}
+                      </button>
+                      
+                      <span className="task-title">
+                        {todo.title}
+                      </span>
+                    </div>
+
+                    <button 
+                      onClick={() => deleteTodo(todo.id)}
+                      className="delete-btn"
+                      title="Delete task"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
