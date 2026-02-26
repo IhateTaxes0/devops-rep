@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './App.css';
 
 // Use environment variable or fallback to localhost
-const API_URL = 'http://${window.location.hostname}:8080';
+const API_URL = `http://${window.location.hostname}:8080`;
 
 function App() {
   const [todos, setTodos] = useState([]);
