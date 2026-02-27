@@ -10,10 +10,6 @@ function App() {
 
   useEffect(() => {
     fetchTodos();
-    const [todos, setTodos] = useState([]);
-    const [newTodo, setNewTodo] = useState('');
-    useEffect(() => {
-      fetchTodos();
   }, []);
 
   const fetchTodos = async () => {
