@@ -91,7 +91,7 @@ jobs:
             git pull origin main
             
             # 2. Pull the latest compiled images from Docker Hub
-            docker compose pull
+            docker-compose pull
             
             # 3. Start everything! (Passing the password from GitHub Secrets)
-            DB_PASSWORD=${{ secrets.PROD_DB_PASS }} docker compose up -d
+            DB_PASSWORD=${{ secrets.PROD_DB_PASS }} docker-compose up -d
