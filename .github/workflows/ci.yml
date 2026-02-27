@@ -85,37 +85,13 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/todo-backend:latest
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/todo-frontend:latest
+            cd /home/vietphuonglinh123/devops-project
             
-            # Stop all old containers (including db if it exists)
-            docker rm -f backend frontend db || true
+            # 1. Pull the latest code (including your docker-compose.yml and database.sql)
+            git pull origin main
             
-            # 1. Start the Production Database
-            docker run -d --name db \
-              --network host \
-              -e POSTGRES_USER=postgres \
-              -e POSTGRES_PASSWORD=${{ secrets.PROD_DB_PASS }} \
-              -e POSTGRES_DB=tododb \
-              postgres:15-alpine
-              
-            # Wait 5 seconds for Postgres to fully boot up
-            sleep 15
+            # 2. Pull the latest compiled images from Docker Hub
+            docker-compose pull
             
-            # 2. Create the todos table inside the live database
-            docker exec -e PGPASSWORD=${{ secrets.PROD_DB_PASS }} db psql -U postgres -d tododb -c "CREATE TABLE IF NOT EXISTS todos (id SERIAL PRIMARY KEY, title VARCHAR(255) NOT NULL, completed BOOLEAN DEFAULT false);"
-            
-            # 3. Start the Backend
-            docker run -d --name backend \
-              -p 8080:8080 \
-              --network host \
-              -e DB_HOST=localhost \
-              -e DB_USER=postgres \
-              -e DB_NAME=tododb \
-              -e DB_PASSWORD=${{ secrets.PROD_DB_PASS }} \
-              ${{ secrets.DOCKERHUB_USERNAME }}/todo-backend:latest
-              
-            # 4. Start the Frontend
-            docker run -d --name frontend \
-              -p 3000:3000 \
-              ${{ secrets.DOCKERHUB_USERNAME }}/todo-frontend:latest
+            # 3. Start everything! (Passing the password from GitHub Secrets)
+            DB_PASSWORD=${{ secrets.PROD_DB_PASS }} docker-compose up -d
